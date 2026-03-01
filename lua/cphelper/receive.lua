@@ -3,43 +3,56 @@ local uv = vim.loop
 
 local M = {}
 
+---@param client uv.uv_tcp_t
+---@param server uv.uv_tcp_t
+local function on_connection(client, server)
+    local buffer = ""
+    client:read_start(function(error, chunk)
+        assert(not error, error)
+        if chunk then
+            buffer = buffer .. chunk
+        else
+            client:shutdown()
+            client:close()
+
+            -- HTTP - CRLF b/w headers and body
+            local content = string.match(buffer, "^.+\r\n(.+)$")
+
+            vim.schedule(function()
+                local request = vim.json.decode(content)
+                if vim.g["cph#url_register"] then
+                    vim.fn.setreg(vim.g["cph#url_register"], request.url)
+                end
+                local problem_dir = prepare.prepare_folders(request.name, request.group)
+                prepare.prepare_files(problem_dir, request.tests)
+                print("All the best!")
+            end)
+
+            server:shutdown()
+            server:close()
+        end
+    end)
+end
 function M.receive()
     print("Listening on port 27121")
-    local buffer = ""
-    M.server = uv.new_tcp()
-    M.server:bind("127.0.0.1", 27121)
+    local server = uv.new_tcp()
+    if not server then
+        vim.api.nvim_echo({ { "could not create server" } }, true, { err = true })
+        return
+    else
+        M.server = server
+    end
+    local bind_success, bind_error = M.server:bind("127.0.0.1", 27121)
+    if not bind_success then
+        vim.api.nvim_echo({ { "could not bind to port", bind_error } }, true, { err = true })
+        return
+    end
     M.server:listen(128, function(err)
         assert(not err, err)
         local client = uv.new_tcp()
         M.server:accept(client)
-        client:read_start(function(error, chunk)
-            assert(not error, error)
-            if chunk then
-                buffer = buffer .. chunk
-            else
-                client:shutdown()
-                client:close()
-
-                -- HTTP - CRLF b/w headers and body
-                local idx = buffer:match("^.*()\r\n")
-                buffer = buffer:sub(idx + 1)
-
-                vim.schedule(function()
-                    local request = vim.json.decode(buffer)
-                    if vim.g["cph#url_register"] then
-                        vim.fn.setreg(vim.g["cph#url_register"], request.url)
-                    end
-                    local problem_dir = prepare.prepare_folders(request.name, request.group)
-                    prepare.prepare_files(problem_dir, request.tests)
-                    print("All the best!")
-                end)
-
-                M.server:shutdown()
-                M.server:close()
-            end
-        end)
+        on_connection(client, M.server)
     end)
-    uv.run()
 end
 
 function M.stop()

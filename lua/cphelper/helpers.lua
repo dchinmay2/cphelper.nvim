@@ -1,9 +1,9 @@
 local M = {}
 local api = vim.api
 
--- Strips out special characters from a string
---- @param s string #The string to sanitize
---- @return string #The sanitized string
+--- Strip out special characters from a string
+--- @param s string The string to sanitize
+--- @return string
 function M.sanitize(s)
     local copy = s
     local unwanted = { "-", " ", "#", "%.", ":", "'", "+", "%%" }
@@ -17,10 +17,10 @@ function M.sanitize(s)
     return copy
 end
 
--- Compares two lists of strings
---- @param t1 table #The first table
---- @param t2 table #The second table
---- @return string #
+--- Compare two lists of strings
+--- @param t1 table The first table
+--- @param t2 table The second table
+--- @return string
 function M.compare_str_list(t1, t2)
     local compare = function(str1, str2)
         if str1 == str2 then
@@ -53,7 +53,7 @@ function M.compare_str_list(t1, t2)
     end
 end
 
---- Pads a list of lines with spaces
+--- Pad a list of lines with spaces
 --- Copied from neovim master.
 --- Credits: Christian Clason and Hirokazu Hata
 --- @param contents table
@@ -82,9 +82,9 @@ local function pad(contents, opts)
     return contents
 end
 
--- Display the results in a floating window on the right side
---- @param contents table #List of lines to display
---- @return number #bufnr of the created window
+--- Display the results in a floating window on the right side
+--- @param contents table List of lines to display
+--- @return number # bufnr of the created window
 function M.display_right(contents)
     local bufnr = api.nvim_create_buf(false, true)
     local width = 0

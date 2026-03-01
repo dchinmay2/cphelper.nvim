@@ -4,10 +4,10 @@ local extend = vim.list_extend
 local insert = table.insert
 local M = {}
 
--- Run a test case
---- @param case string #Case no.
---- @param cmd string #Command for running the test
---- @return table, number #The result to display and whether or not the test passed
+--- Run a test case
+--- @param case string #case no.
+--- @param cmd string #command for running the test
+--- @return table, integer #result to display and whether or not the test passed
 function M.run_test(case, cmd)
     local timeout = vim.g["cph#timeout"] or 2000
     local success = 0 -- status is 1 on correct answer, 0 otherwise

@@ -2,11 +2,11 @@ local filetype = require("plenary.filetype")
 local run = require("cphelper.run_test")
 local def = require("cphelper.definitions")
 
---- Runs multiple test cases by calling `"cphelper.run_test".run_test()` on a binary
----@param case_numbers table #List of case numbers
----@return integer #Number of cases passed
----@return integer #Total number of cases
----@return table #Result to be displayed (list of lines)
+--- Run multiple test cases by calling `"cphelper.run_test".run_test()` on a binary
+---@param case_numbers table #list of case numbers
+---@return integer #number of cases passed
+---@return integer #total number of cases
+---@return table #result to be displayed (list of lines)
 local function iterate_cases(case_numbers)
     local cwd = vim.fn.getcwd()
     local ft = filetype.detect(vim.api.nvim_buf_get_name(0))
@@ -14,10 +14,10 @@ local function iterate_cases(case_numbers)
     local display = {}
     if #case_numbers == 0 then
         for _, input_file in
-            ipairs(require("plenary.scandir").scan_dir(cwd, {
-                search_pattern = "input%d+",
-                depth = 1,
-            }))
+        ipairs(require("plenary.scandir").scan_dir(cwd, {
+            search_pattern = "input%d+",
+            depth = 1,
+        }))
         do
             local case_display, success = run.run_test(
                 string.sub(input_file, string.len(cwd) - string.len(input_file) + 6),
@@ -38,10 +38,10 @@ local function iterate_cases(case_numbers)
     return ac, cases, display
 end
 
---- Displays results
----@param ac number #No. of cases passed
----@param cases number #Total no. of cases
----@param display table #Result to be displayed (list of lines)
+--- Display results
+---@param ac integer #no. of cases passed
+---@param cases integer #total no. of cases
+---@param display table #result to be displayed (list of lines)
 local function display_results(ac, cases, display)
     local header = "   RESULTS: " .. ac .. "/" .. cases .. " AC"
     if ac == cases then
@@ -73,10 +73,9 @@ end
 
 local M = {}
 
--- Compile and test
---- @vararg number #Case numbers to test. If not provided, then all cases are tested
-function M.process(...)
-    local args = { ... }
+--- Compile and test
+--- @param args integer[] #case numbers to test. If not provided, then all cases are tested
+function M.process(args)
     local ft = filetype.detect(vim.api.nvim_buf_get_name(0))
     if def.compile_cmd[ft] ~= nil then
         vim.fn.jobstart((vim.g["cph#" .. ft .. "#compile_command"] or def.compile_cmd[ft]), {
@@ -92,14 +91,13 @@ function M.process(...)
             end,
         })
     else
-        M.process_retests(...)
+        M.process_retests(args)
     end
 end
 
--- Retest without compiling
---- @vararg number #Test case nos.
-function M.process_retests(...)
-    local args = { ... }
+--- Retest without compiling
+--- @param args integer[] #case numbers to test. If not provided, then all cases are tested
+function M.process_retests(args)
     local ac, cases, display = iterate_cases(args)
     display_results(ac, cases, display)
 end

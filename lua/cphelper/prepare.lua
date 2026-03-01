@@ -7,10 +7,10 @@ local contests_dir =
 
 local M = {}
 
--- Creates the folder for the problem: contests_dir/judge/contest/problem
---- @param problem string #The name of the problem
---- @param group string #Group, in the format "Judge - Contest"
---- @return Path #The problem dir
+--- Create the folder for the problem: contests_dir/judge/contest/problem
+--- @param problem string name of the problem
+--- @param group string group, in the format "Judge - Contest"
+--- @return Path # problem dir
 function M.prepare_folders(problem, group)
     local problem_dir
     if
@@ -31,9 +31,9 @@ function M.prepare_folders(problem, group)
     return problem_dir
 end
 
--- Creates the sample input, sample output and solution source code files for the problem
---- @param problem_dir Path #The directory of the problem
---- @param tests table #List of { input = "foo", ouput = "bar" }
+--- Create the sample input, sample output and solution source code files for the problem
+--- @param problem_dir Path # directory of the problem
+--- @param tests table # list of { input = "foo", ouput = "bar" }
 function M.prepare_files(problem_dir, tests)
     for i, test in pairs(tests) do
         problem_dir:joinpath("input" .. i):write(test.input, "w")
