@@ -6,7 +6,7 @@ local M = {}
 
 --- Run a test case
 --- @param case string #case no.
---- @param cmd string #command for running the test
+--- @param cmd string[] #command for running the test
 --- @return table, integer #result to display and whether or not the test passed
 function M.run_test(case, cmd)
     local timeout = vim.g["cph#timeout"] or 2000
@@ -27,30 +27,24 @@ function M.run_test(case, cmd)
     local output_arr = {}
     local err_arr = {}
 
-    local function on_stdout(_, data, _)
-        for index, value in ipairs(data) do
-            data[index] = "  " .. value
-        end
-        extend(output_arr, data)
+    local function on_stdout(_err, data)
+        if not data then return end
+        extend(output_arr, { "  " .. data })
         if output_arr[#output_arr] == "  " then
             output_arr[#output_arr] = nil -- EOF is an empty string
         end
     end
 
-    local function on_stderr(_, data, _)
-        for index, value in ipairs(data) do
-            data[index] = "  " .. value
-        end
-        extend(err_arr, data)
+    local function on_stderr(_err, data)
+        if not data then return end
+        extend(output_arr, { "  " .. data })
         err_arr[#err_arr] = nil
     end
 
-    local function on_exit(_, exit_code, _)
-        -- Strip CR on Windows
-        if fn.has("win32") then
-            for k, v in pairs(output_arr) do
-                output_arr[k] = string.gsub(v, "\r", "")
-            end
+    local function on_exit(out)
+        if out.signal == 15 and out.code == 124 then
+            insert(display, string.format("  Status: Timed out after %d ms", timeout))
+            return
         end
 
         if #output_arr ~= 0 then
@@ -60,9 +54,9 @@ function M.run_test(case, cmd)
         if #err_arr ~= 0 then
             insert(display, "  Error:")
             extend(display, err_arr)
-            insert(display, "  Exit code " .. exit_code)
+            insert(display, "  Exit code " .. out.code)
         end
-        if exit_code == 0 then
+        if out.code == 0 then
             local matches = helpers.compare_str_list(output_arr, exp_out_arr)
             if matches == "yes" then
                 insert(display, "  Status: AC")
@@ -75,28 +69,21 @@ function M.run_test(case, cmd)
             end
         else
             insert(display, "  Status: RTE")
-            insert(display, "  Exit code " .. exit_code)
+            insert(display, "  Exit code " .. out.code)
         end
     end
 
     -- Run executable
-    local job_id = fn.jobstart(cmd, {
-        on_stdout = on_stdout,
-        on_stderr = on_stderr,
-        on_exit = on_exit,
-        data_buffered = true,
-    })
+    vim.system(cmd, {
+        stdin = fn.readfile("input" .. case),
+        stdout = on_stdout,
+        stderr = on_stderr,
+        timeout = timeout,
+        text = true,
+    }, on_exit):wait()
 
-    -- Send input
-    fn.chansend(job_id, extend(fn.readfile("input" .. case), { "" }))
-
-    -- Wait till `timeout`
-    local len = fn.jobwait({ job_id }, timeout)
-    if len[1] == -1 then
-        insert(display, string.format("  Status: Timed out after %d ms", timeout))
-        fn.jobstop(job_id)
-    end
     insert(display, "")
     return display, success
 end
+
 return M

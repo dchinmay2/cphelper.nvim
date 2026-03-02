@@ -20,6 +20,7 @@ end, { nargs = "*" })
 
 nvim_create_user_command("CphEdit", function(args)
     vim.cmd.lcd({ "%:p:h", mods = {silent = true }})
+    assert(args.fargs[1], "cphelper.nvim: need at least one test case to edit")
     require("cphelper.modify_tc").edittc(args.fargs[1])
 end, { nargs = 1 })
 
@@ -28,4 +29,4 @@ nvim_create_user_command("CphDelete", function(args)
     require("cphelper.modify_tc").deletetc(args.fargs)
 end, { nargs = "+" })
 
-vim.api.nvim_set_hl(0, "CphUnderline", { underline = 1 })
+vim.api.nvim_set_hl(0, "CphUnderline", { underline = true })

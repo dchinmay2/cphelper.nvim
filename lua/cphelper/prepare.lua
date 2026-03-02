@@ -2,7 +2,7 @@ local helpers = require("cphelper.helpers")
 local def = require("cphelper.definitions")
 local preferred_lang = vim.g["cph#lang"] or "cpp"
 local sep = package.config:sub(1, 1)
-local contests_dir = vim.g["cph#dir"] or (vim.loop.os_homedir() .. sep .. "contests")
+local contests_dir = vim.g["cph#dir"] or (vim.uv.os_homedir() .. sep .. "contests")
 
 local M = {}
 

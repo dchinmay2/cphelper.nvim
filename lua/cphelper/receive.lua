@@ -17,6 +17,7 @@ local function on_connection(client, server)
 
             -- HTTP - CRLF b/w headers and body
             local content = string.match(buffer, "^.+\r\n(.+)$")
+            assert(content, "cphelper.nvim: did not receive content from extension")
 
             vim.schedule(function()
                 local request = vim.json.decode(content)
@@ -50,6 +51,7 @@ function M.receive()
     M.server:listen(128, function(err)
         assert(not err, err)
         local client = uv.new_tcp()
+        assert(client, "cphelper.nvim: could not create client")
         M.server:accept(client)
         on_connection(client, M.server)
     end)

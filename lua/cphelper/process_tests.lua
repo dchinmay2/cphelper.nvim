@@ -7,7 +7,7 @@ local def = require("cphelper.definitions")
 ---@return integer #total number of cases
 ---@return table #result to be displayed (list of lines)
 local function iterate_cases(case_numbers)
-    local cwd = vim.fn.getcwd()
+    local cwd = vim.uv.cwd()
     local ft = vim.filetype.match({ filename = vim.api.nvim_buf_get_name(0) })
     local ac, cases = 0, 0
     local display = {}
@@ -46,8 +46,8 @@ local function display_results(ac, cases, display)
         table.insert(contents, line)
     end
     local bufnr = require("cphelper.helpers").display_right(contents)
-    vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
-    vim.api.nvim_buf_set_option(bufnr, "filetype", "Results")
+    vim.api.nvim_set_option_value("modifiable", false, { buf = bufnr })
+    vim.api.nvim_set_option_value("filetype", "Results", { buf = bufnr })
     local highlights = {
         ["Status: AC"] = "DiffAdd",
         ["Status: WA"] = "Error",
@@ -68,29 +68,28 @@ end
 local M = {}
 
 --- Compile and test
---- @param args integer[] #case numbers to test. If not provided, then all cases are tested
+--- @param args string[] #case numbers to test. If not provided, then all cases are tested
 function M.process(args)
     local ft = vim.filetype.match({ filename = vim.api.nvim_buf_get_name(0) })
     if def.compile_cmd[ft] ~= nil then
-        vim.fn.jobstart((vim.g["cph#" .. ft .. "#compile_command"] or def.compile_cmd[ft]), {
-            on_exit = function(_, exit_code, _)
-                if exit_code == 0 then
+        vim.system((vim.g["cph#" .. ft .. "#compile_command"] or def.compile_cmd[ft]), {}, function(out)
+            if out.stderr then
+                vim.schedule(function() vim.api.nvim_echo({ { out.stderr } }, true, { err = true }) end)
+            end
+            if out.code == 0 then
+                vim.schedule(function()
                     local ac, cases, results = iterate_cases(args)
                     display_results(ac, cases, results)
-                end
-            end,
-            on_stderr = function(_, data, _)
-                local err_msg = table.concat(data, "\n")
-                vim.api.nvim_err_write(err_msg)
-            end,
-        })
+                end)
+            end
+        end)
     else
         M.process_retests(args)
     end
 end
 
 --- Retest without compiling
---- @param args integer[] #case numbers to test. If not provided, then all cases are tested
+--- @param args string[] #case numbers to test. If not provided, then all cases are tested
 function M.process_retests(args)
     local ac, cases, display = iterate_cases(args)
     display_results(ac, cases, display)

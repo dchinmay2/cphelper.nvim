@@ -76,21 +76,21 @@ The plugin is configured using global variables:
 
 `g:cph#cpp#compile_command`                          *g:cph#cpp#compile_command*
             Command for compiling C++ files.
-            Default: `g++ solution.cpp -o cpp.out`
+            Default: `{ "g++", "solution.cpp", "-o", "cpp.out" }`
             Note: The input file must be `solution.cpp` and the output file
             must be `cpp.out`
 
 
 `g:cph#c#compile_command`                              *g:cph#c#compile_command*
             Command for compiling C files.
-            Default: `gcc solution.c -o c.out`
+            Default: `{ "gcc", "solution.c", "-o", "c.out" }`
             Note: The input file must be `solution.c` and the output file
             must be `c.out`
 
 
 `g:cph#rust#compile_command`                        *g:cph#rust#compile_command*
             Command for compiling Rust files.
-            Default: `rustc solution.rs -o rust.out`
+            Default: `{ "rustc", "solution.rs", "-o", "rust.out" }`
             Note: The input file must be `solution.rs` and the output file
             must be `rust.out`
 
@@ -118,7 +118,7 @@ The plugin is configured using global variables:
 
 `g:cph#kotlin#compile_command`                    *g:cph#kotlin#compile_command*
             Command for compiling kotlin files.
-            Default: `kotlinc solution.kt -include-runtime -d solution.jar`
+            Default: `{ "kotlinc", "solution.kt", "-include-runtime", "-d", "solution.jar" }`
             Note: The input file must be `solution.kt` and the output file
             must be `solution.jar`
 

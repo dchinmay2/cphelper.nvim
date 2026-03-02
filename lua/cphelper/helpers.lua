@@ -57,12 +57,10 @@ end
 --- Copied from neovim master.
 --- Credits: Christian Clason and Hirokazu Hata
 --- @param contents table
---- @param opts table
+--- @param opts table?
 local function pad(contents, opts)
-    vim.validate({
-        contents = { contents, "t" },
-        opts = { opts, "t", true },
-    })
+    vim.validate("contents", contents, "table")
+    vim.validate("opts", opts, "table", true)
     opts = opts or {}
     local left_padding = (" "):rep(opts.pad_left or 1)
     local right_padding = (" "):rep(opts.pad_right or 1)
@@ -84,7 +82,7 @@ end
 
 --- Display the results in a floating window on the right side
 --- @param contents table List of lines to display
---- @return number # bufnr of the created window
+--- @return integer # bufnr of the created window
 function M.display_right(contents)
     local bufnr = api.nvim_create_buf(false, true)
     local width = 0
@@ -107,18 +105,18 @@ function M.display_right(contents)
         vim.cmd("vsplit")
         api.nvim_win_set_buf(0, bufnr)
         api.nvim_win_set_width(0, width)
-        api.nvim_win_set_option(0, "number", false)
-        api.nvim_win_set_option(0, "relativenumber", false)
-        api.nvim_win_set_option(0, "cursorline", false)
-        api.nvim_win_set_option(0, "cursorcolumn", false)
-        api.nvim_win_set_option(0, "spell", false)
-        api.nvim_win_set_option(0, "list", false)
-        api.nvim_win_set_option(0, "signcolumn", "auto")
+        api.nvim_set_option_value("number", false, { win = 0 })
+        api.nvim_set_option_value("relativenumber", false, { win = 0 })
+        api.nvim_set_option_value("cursorline", false, { win = 0 })
+        api.nvim_set_option_value("cursorcolumn", false, { win = 0 })
+        api.nvim_set_option_value("spell", false, { win = 0 })
+        api.nvim_set_option_value("list", false, { win = 0 })
+        api.nvim_set_option_value("signcolumn", "auto", { win = 0 })
     end
     contents = pad(contents, { pad_top = 1 })
-    api.nvim_win_set_option(0, "foldmethod", "indent")
+    api.nvim_set_option_value("foldmethod", "indent", { win = 0 })
     api.nvim_buf_set_lines(bufnr, 0, -1, true, contents)
-    api.nvim_buf_set_option(bufnr, "shiftwidth", 2)
+    api.nvim_set_option_value("shiftwidth", 2, { buf = bufnr })
     return bufnr
 end
 
