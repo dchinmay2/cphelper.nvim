@@ -1,4 +1,6 @@
 # cphelper.nvim
+[![builds.sr.ht status](https://builds.sr.ht/~chinmay/cphelper.nvim.svg)](https://builds.sr.ht/~chinmay/cphelper.nvim?)
+
 A plugin for automating tasks in competitive programming like downloading test cases, compiling and testing. Supports Rust, C, C++, Java, Kotlin (JVM), Python, Javascript (Node) and Lua.
 
 ## Requirements
