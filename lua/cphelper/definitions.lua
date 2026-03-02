@@ -1,4 +1,4 @@
-local sep = require("plenary.path").path.sep
+local sep = package.config:sub(1, 1)
 return {
     compile_cmd = {
         c = "gcc solution.c -o c.out",

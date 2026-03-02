@@ -1,4 +1,3 @@
-local filetype = require("plenary.filetype")
 local run = require("cphelper.run_test")
 local def = require("cphelper.definitions")
 
@@ -9,23 +8,18 @@ local def = require("cphelper.definitions")
 ---@return table #result to be displayed (list of lines)
 local function iterate_cases(case_numbers)
     local cwd = vim.fn.getcwd()
-    local ft = filetype.detect(vim.api.nvim_buf_get_name(0))
+    local ft = vim.filetype.match({ filename = vim.api.nvim_buf_get_name(0) })
     local ac, cases = 0, 0
     local display = {}
     if #case_numbers == 0 then
-        for _, input_file in
-        ipairs(require("plenary.scandir").scan_dir(cwd, {
-            search_pattern = "input%d+",
-            depth = 1,
-        }))
-        do
-            local case_display, success = run.run_test(
-                string.sub(input_file, string.len(cwd) - string.len(input_file) + 6),
-                def.run_cmd[ft]
-            )
-            vim.list_extend(display, case_display)
-            ac = ac + success -- status is 1 on correct answer, 0 otherwise
-            cases = cases + 1
+        for _, input_file in ipairs(vim.fn.glob(cwd .. "/input*", false, true)) do
+            local num = input_file:match("input(%d+)$")
+            if num then
+                local case_display, success = run.run_test(num, def.run_cmd[ft])
+                vim.list_extend(display, case_display)
+                ac = ac + success -- status is 1 on correct answer, 0 otherwise
+                cases = cases + 1
+            end
         end
     else
         for _, case in ipairs(case_numbers) do
@@ -76,7 +70,7 @@ local M = {}
 --- Compile and test
 --- @param args integer[] #case numbers to test. If not provided, then all cases are tested
 function M.process(args)
-    local ft = filetype.detect(vim.api.nvim_buf_get_name(0))
+    local ft = vim.filetype.match({ filename = vim.api.nvim_buf_get_name(0) })
     if def.compile_cmd[ft] ~= nil then
         vim.fn.jobstart((vim.g["cph#" .. ft .. "#compile_command"] or def.compile_cmd[ft]), {
             on_exit = function(_, exit_code, _)

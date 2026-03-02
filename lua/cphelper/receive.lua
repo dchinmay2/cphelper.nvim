@@ -1,5 +1,5 @@
 local prepare = require("cphelper.prepare")
-local uv = vim.loop
+local uv = vim.uv
 
 local M = {}
 

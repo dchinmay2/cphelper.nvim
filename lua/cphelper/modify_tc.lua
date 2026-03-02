@@ -1,4 +1,4 @@
-local path = require("plenary.path")
+local sep = package.config:sub(1, 1)
 
 local M = {}
 
@@ -13,8 +13,8 @@ end
 --- @param cases integer[] Test case nos.
 function M.deletetc(cases)
     for _, case in pairs(cases) do
-        path.new(vim.fn.getcwd() .. path.path.sep .. "input" .. case):rm()
-        path.new(vim.fn.getcwd() .. path.path.sep .. "output" .. case):rm()
+        vim.fn.delete(vim.fn.getcwd() .. sep .. "input" .. case)
+        vim.fn.delete(vim.fn.getcwd() .. sep .. "output" .. case)
     end
 end
 
