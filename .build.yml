@@ -1,7 +1,6 @@
 image: debian/sid
 packages:
   - curl
-  - neovim
   - neovim-runtime
 sources:
   - https://git.sr.ht/~chinmay/cphelper.nvim
