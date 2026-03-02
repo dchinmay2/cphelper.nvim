@@ -11,5 +11,5 @@ tasks:
       curl -Lo /tmp/uv_meta.lua https://raw.githubusercontent.com/neovim/neovim/a8361c3afc5b9281814e9f16a9d4291e095b38fa/runtime/lua/uv/_meta.lua
       sudo mv /tmp/uv_meta.lua /usr/share/nvim/runtime/lua/uv/_meta.lua
       curl -L https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.20.0/emmylua_check-linux-x64.tar.gz \
-        | tar -xz -C cphelper.nvim
-      cd cphelper.nvim && ./emmylua_check --warnings-as-errors .
+        | tar -xz
+      ./emmylua_check --warnings-as-errors cphelper.nvim
