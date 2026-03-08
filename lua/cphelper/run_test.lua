@@ -29,7 +29,10 @@ function M.run_test(case, cmd)
 
     local function on_stdout(_err, data)
         if not data then return end
-        extend(output_arr, { "  " .. data })
+        local lines = vim.split(data, "\n")
+        for _, line in ipairs(lines) do
+            extend(output_arr, { "  " .. line })
+        end
         if output_arr[#output_arr] == "  " then
             output_arr[#output_arr] = nil -- EOF is an empty string
         end
@@ -37,7 +40,10 @@ function M.run_test(case, cmd)
 
     local function on_stderr(_err, data)
         if not data then return end
-        extend(output_arr, { "  " .. data })
+        local lines = vim.split(data, "\n")
+        for _, line in ipairs(lines) do
+            extend(output_arr, { "  " .. line })
+        end
         err_arr[#err_arr] = nil
     end
 
