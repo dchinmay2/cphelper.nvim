@@ -1,7 +1,7 @@
 *cphelper.txt* Competitive programming helper for neovim
 
 Author:  Chinmay Dalal
-Repo:    https://github.com/p00f/cphelper.nvim
+Repo:    https://github.com/dchinmay2/cphelper.nvim
          https://git.sr.ht/~chinmay/cphelper.nvim
 License: MIT
 
@@ -57,6 +57,10 @@ The plugin is configured using global variables:
             (You can always open a `solution.language` file for a particular
             problem using `:e` and that file will be used.)
             Default: `cpp`
+
+`g:cph#ignore_trailing_differences`          *g:cph#ignore_trailing_differences*
+	    Ignore differences in trailing whitespace when checking if a
+	    result matches the expected output
 
 `g:cph#timeout`                                                  *g:cph#timeout*
             Time limit per test case in milliseconds

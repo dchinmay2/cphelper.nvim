@@ -42,9 +42,11 @@ function M.run_test(case, cmd)
         if not data then return end
         local lines = vim.split(data, "\n")
         for _, line in ipairs(lines) do
-            extend(output_arr, { "  " .. line })
+            extend(err_arr, { "  " .. line })
         end
-        err_arr[#err_arr] = nil
+        if err_arr[#err_arr] == "  " then
+            err_arr[#err_arr] = nil -- EOF is an empty string
+        end
     end
 
     local function on_exit(out)
@@ -64,14 +66,14 @@ function M.run_test(case, cmd)
         end
         if out.code == 0 then
             local matches = helpers.compare_str_list(output_arr, exp_out_arr)
-            if matches == "yes" then
+            if matches == "yes" or (matches == "trailing" and vim.g["cph#ignore_trailing_differences"]) then
                 insert(display, "  Status: AC")
                 success = 1
             else
                 insert(display, "  Status: WA")
-            end
-            if matches == "trailing" then
-                insert(display, "  NOTE: Answer differs by trailing whitespace")
+                if matches == "trailing" then
+                    insert(display, "  NOTE: Answer differs by trailing whitespace")
+                end
             end
         else
             insert(display, "  Status: RTE")

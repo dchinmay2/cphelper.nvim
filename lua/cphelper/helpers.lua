@@ -17,11 +17,16 @@ function M.sanitize(s)
     return copy
 end
 
+--- @alias cphelper.StrListMatch "yes" | "trailing" | "no"
+
 --- Compare two lists of strings
 --- @param t1 table The first table
 --- @param t2 table The second table
---- @return string
+--- @return cphelper.StrListMatch
 function M.compare_str_list(t1, t2)
+    --- @param str1 string
+    --- @param str2 string
+    --- @return cphelper.StrListMatch
     local compare = function(str1, str2)
         if str1 == str2 then
             return "yes"
