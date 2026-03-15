@@ -57,8 +57,7 @@ nvim_create_user_command("Cph", function(args)
 end, {
     nargs = "+",
     complete = function(arglead, cmdline, _)
-        local args = vim.split(cmdline, "%s+", { trimempty = true })
-        if #args <= 1 or (#args == 2 and arglead ~= "") then
+        if cmdline:match("^Cph%s+%S*$") then
             return vim.tbl_filter(function(s)
                 return vim.startswith(s, arglead)
             end, subcommands)
