@@ -1,8 +1,48 @@
-local helpers = require("cphelper.helpers")
 local fn = vim.fn
 local extend = vim.list_extend
 local insert = table.insert
 local M = {}
+
+--- @alias cphelper.StrListMatch "yes" | "trailing" | "no"
+
+--- Compare two lists of strings
+--- @param t1 table The first table
+--- @param t2 table The second table
+--- @return cphelper.StrListMatch
+local function compare_str_list(t1, t2)
+    --- @param str1 string
+    --- @param str2 string
+    --- @return cphelper.StrListMatch
+    local compare = function(str1, str2)
+        if str1 == str2 then
+            return "yes"
+        elseif str1:gsub("%s*$", "") == str2:gsub("%s*$", "") then
+            return "trailing"
+        else
+            return "no"
+        end
+    end
+
+    if #t1 ~= #t2 then
+        return "no"
+    end
+
+    local trailing_match = false
+    for k, _ in pairs(t1) do
+        local matches = compare(t1[k], t2[k])
+        if matches == "no" then
+            return "no"
+        elseif matches == "trailing" then
+            trailing_match = true
+        end
+    end
+
+    if trailing_match then
+        return "trailing"
+    else
+        return "yes"
+    end
+end
 
 --- Run a test case
 --- @param case string #case no.
@@ -65,7 +105,7 @@ function M.run_test(case, cmd)
             insert(display, "  Exit code " .. out.code)
         end
         if out.code == 0 then
-            local matches = helpers.compare_str_list(output_arr, exp_out_arr)
+            local matches = compare_str_list(output_arr, exp_out_arr)
             if matches == "yes" or (matches == "trailing" and vim.g["cph#ignore_trailing_differences"]) then
                 insert(display, "  Status: AC")
                 success = 1

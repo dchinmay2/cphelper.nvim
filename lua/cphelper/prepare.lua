@@ -1,4 +1,3 @@
-local helpers = require("cphelper.helpers")
 local def = require("cphelper.definitions")
 local preferred_lang = vim.g["cph#lang"] or "cpp"
 local sep = package.config:sub(1, 1)
@@ -6,6 +5,21 @@ local contests_dir = vim.g["cph#dir"] or (vim.uv.os_homedir() .. sep .. "contest
 
 local M = {}
 
+--- Strip out special characters from a string
+--- @param s string The string to sanitize
+--- @return string
+local function sanitize(s)
+    local copy = s
+    local unwanted = { "-", " ", "#", "%.", ":", "'", "+", "%%" }
+    for _, char in pairs(unwanted) do
+        local pos = string.find(copy, char)
+        while pos do
+            copy = string.sub(copy, 1, pos - 1) .. string.sub(copy, pos + 1)
+            pos = string.find(copy, char)
+        end
+    end
+    return copy
+end
 local function write_file(filepath, content)
     local f = assert(io.open(filepath, "w"))
     f:write(content)
@@ -24,13 +38,13 @@ function M.prepare_folders(problem, group)
         or (group == "DMOJ")
         or (group == "Library Checker")
     then
-        problem_dir = vim.fs.joinpath(contests_dir, group, helpers.sanitize(problem))
+        problem_dir = vim.fs.joinpath(contests_dir, group, sanitize(problem))
     else
         local sep_pos = string.find(group, "% %-")
         assert(sep_pos, "cphelper.nvim: could not find judge-contest separator")
-        local judge = helpers.sanitize(string.sub(group, 1, sep_pos))
-        local contest = helpers.sanitize(string.sub(group, sep_pos + 1))
-        problem = helpers.sanitize(problem)
+        local judge = sanitize(string.sub(group, 1, sep_pos))
+        local contest = sanitize(string.sub(group, sep_pos + 1))
+        problem = sanitize(problem)
         problem_dir = vim.fs.joinpath(contests_dir, judge, contest, problem)
     end
     ---@cast problem_dir string
